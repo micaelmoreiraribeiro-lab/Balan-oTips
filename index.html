@@ -1834,6 +1834,211 @@ function confirmClear(){
 // ═══════════════════════════════════════════════════════════════════════
 // MODAL DE ENTRADA
 // ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// LISTAS DE COMPETIÇÕES, MERCADOS E ATLETAS
+// ═══════════════════════════════════════════════════════════════════════
+const COMPS = {
+  'Futebol': [
+    // América do Sul — Nacionais
+    'Brasileirão Série A','Brasileirão Série B','Brasileirão Série C',
+    'Copa do Brasil','Campeonato Carioca','Campeonato Paulista','Campeonato Mineiro',
+    'Campeonato Gaúcho','Campeonato Baiano','Campeonato Pernambucano',
+    'Campeonato Paranaense','Campeonato Catarinense','Campeonato Goiano',
+    'Liga Profissional Argentina','Primera Nacional Argentina','Copa de la Liga Argentina',
+    'Liga MX (México)','Copa MX',
+    'Primera División Uruguay','Primera División Chile','Liga BetPlay (Colômbia)',
+    'Primera División Venezuela','Primera División Bolívia','Primera División Peru',
+    'Liga Primera Equador','Primera División Paraguai',
+    // América do Sul — Internacionais
+    'Libertadores da América','Sul-Americana','Recopa Sul-Americana','Copa Suruga Bank',
+    // América Central e Caribe
+    'Primera División Costa Rica','Liga Nacional Guatemala','LPF Panamá',
+    // América do Norte
+    'MLS (EUA)','Canadian Premier League',
+    // Europa — 5 Grandes Ligas
+    'Premier League (Inglaterra)','Championship (Inglaterra)',
+    'La Liga (Espanha)','Segunda División (Espanha)',
+    'Bundesliga (Alemanha)','2. Bundesliga (Alemanha)',
+    'Serie A (Itália)','Serie B (Itália)',
+    'Ligue 1 (França)','Ligue 2 (França)',
+    // Europa — Outras Ligas
+    'Eredivisie (Holanda)','Primeira Liga (Portugal)','Jupiler Pro League (Bélgica)',
+    'Super Liga (Turquia)','Scottish Premiership','Serie A (Grécia)',
+    'Superliga (Dinamarca)','Allsvenskan (Suécia)','Veikkausliiga (Finlândia)',
+    'Ekstraklasa (Polônia)','Czech First League','Austrian Bundesliga',
+    'Swiss Super League','Liga I (Romênia)','Superliga (Sérvia)',
+    // Europa — Competições Internacionais
+    'UEFA Champions League','UEFA Europa League','UEFA Conference League',
+    'UEFA Nations League','Supercopa da UEFA',
+    // Seleções
+    'Copa do Mundo FIFA','Copa América','Eurocopa',
+    'Eliminatórias Sul-Americanas','Eliminatórias Europeias',
+    'Eliminatórias CONCACAF','Eliminatórias CAF','Eliminatórias AFC',
+    'Amistoso Internacional','Copa das Nações Africanas (CAN)',
+    'Copa Ouro (CONCACAF)','Copa das Nações da CONCACAF',
+    'Jogos Olímpicos — Futebol','Liga das Nações Europeia',
+  ],
+  'Basquete (NBA)': [
+    'NBA — Temporada Regular','NBA — Playoffs','NBA — Finals','NBA — In-Season Tournament',
+    'G League','NBB (Brasil)','EuroLeague','EuroCup','FIBA Americas','FIBA World Cup',
+  ],
+  'MMA/UFC': [
+    'UFC','UFC Fight Night','UFC PPV','Bellator','ONE Championship',
+    'PFL','Cage Warriors','LFA','Contender Series',
+  ],
+  'Tênis': [
+    'Australian Open','Roland Garros','Wimbledon','US Open',
+    'ATP Finals','ATP Masters 1000','ATP 500','ATP 250',
+    'WTA Finals','WTA 1000','Davis Cup','Billie Jean King Cup',
+  ],
+  'Vôlei': ['Superliga Masculina','Superliga Feminina','Liga das Nações','Mundial de Clubes'],
+  'E-sports': ['CS2','League of Legends','Valorant','Dota 2','FIFA/EA Sports FC'],
+  'Outros': [],
+};
+
+const MERCADOS = {
+  'Futebol': [
+    // Finalizações (mercado principal do usuário)
+    'Finalizações Over — Total','Finalizações Under — Total',
+    'Finalizações Over — Time A','Finalizações Under — Time A',
+    'Finalizações Over — Time B','Finalizações Under — Time B',
+    'Finalizações Over — 1º Tempo','Finalizações Under — 1º Tempo',
+    'Finalizações Over — 2º Tempo','Finalizações Under — 2º Tempo',
+    'Chutes no Gol Over — Total','Chutes no Gol Under — Total',
+    'Chutes no Gol Over — Time A','Chutes no Gol Under — Time A',
+    'Chutes no Gol Over — Time B','Chutes no Gol Under — Time B',
+    'Chutes Fora Over — Total','Chutes Fora Under — Total',
+    'Handicap Finalizações',
+    // Gols
+    'Over/Under Gols — Total','Over 0.5 Gols','Over 1.5 Gols','Over 2.5 Gols',
+    'Over 3.5 Gols','Over 4.5 Gols','Ambos Marcam (BTTS)',
+    'Gols 1º Tempo Over','Gols 2º Tempo Over',
+    'Resultado Final (1X2)','Dupla Chance','Handicap Asiático','Handicap Europeu',
+    // Escanteios
+    'Escanteios Over — Total','Escanteios Under — Total',
+    'Escanteios Over — Time A','Escanteios Over — Time B',
+    'Escanteios 1º Tempo Over','Escanteios 2º Tempo Over',
+    'Handicap Escanteios','Primeiro Escanteio',
+    // Cartões
+    'Cartões Over — Total','Cartões Under — Total','Handicap Cartões',
+    'Primeiro Cartão','Time com mais cartões',
+    // Posse / Passes
+    'Posse de Bola Over — Time A','Passes Over — Total',
+    // Jogador
+    'Jogador Marca a Qualquer Momento','Primeiro a Marcar','Último a Marcar',
+    'Artilheiro do Jogo',
+    // Especiais
+    'Intervalo/Final','Resultado Exato','Número de Gols Exato',
+    'Próximo Gol','Tempo do Primeiro Gol','Equipe Marcar Primeiro',
+    'Ambos Marcam e Over 2.5','Clean Sheet','Vencer os Dois Tempos',
+  ],
+  'Basquete (NBA)': [
+    'Resultado Final','Handicap Pontos','Over/Under Pontos — Total',
+    'Over/Under Pontos — Time A','Over/Under Pontos — Time B',
+    'Over/Under Pontos — 1º Quarto','Over/Under — 1º Tempo',
+    'Pontos do Jogador Over','Rebotes do Jogador Over','Assistências do Jogador Over',
+    'PRA (Pontos+Rebotes+Assistências) Over','Triplo-Duplo','Double-Double',
+    'Maior pontuador do jogo','Race to X Pontos',
+  ],
+  'MMA/UFC': [
+    'Vencedor da Luta','Método de Vitória — Nocaute','Método de Vitória — Submissão',
+    'Método de Vitória — Decisão','Vai até a decisão','Luta termina no Round X',
+    'Over/Under Rounds','Handicap de Rounds','Luta termina no 1º Round',
+    'Ambos chegam ao Round 3','Atleta X para vencer por KO/TKO',
+    'Atleta X para vencer por Decisão Unânime',
+  ],
+  'Tênis': [
+    'Vencedor do Jogo','Handicap Games','Over/Under Games — Total',
+    'Over/Under Games — Set 1','Vencedor do Set 1','Número de Sets',
+    'Tie-break no Set 1','Atleta X vence Set 1 e perde o jogo',
+    'Over/Under Aces','Dupla Falta Over','Primeira Entrada Over',
+  ],
+  'Vôlei': ['Vencedor da Partida','Handicap Sets','Over/Under Sets','Vencedor do Set 1'],
+  'E-sports': ['Vencedor da Partida','Handicap Mapas','Over/Under Mapas','Vencedor do Mapa 1'],
+  'Outros': [],
+};
+
+const ATLETAS_MMA = [
+  // Pesos Pesados
+  'Jon Jones','Stipe Miocic','Ciryl Gane','Sergei Pavlovich','Tom Aspinall',
+  'Curtis Blaydes','Alexander Volkov','Derrick Lewis','Tai Tuivasa',
+  // Meio-Pesados
+  'Alex Pereira','Jamahal Hill','Jiri Prochazka','Jan Blachowicz','Magomed Ankalaev',
+  'Khalil Rountree Jr.','Aleksandar Rakic',
+  // Médios
+  'Dricus du Plessis','Sean Strickland','Israel Adesanya','Robert Whittaker',
+  'Khamzat Chimaev','Paulo Costa','Marvin Vettori',
+  // Meio-Médios
+  'Leon Edwards','Colby Covington','Kamaru Usman','Belal Muhammad',
+  'Shavkat Rakhmonov','Sean Brady','Gilbert Burns',
+  // Leves
+  'Islam Makhachev','Dustin Poirier','Charles Oliveira','Justin Gaethje',
+  'Arman Tsarukyan','Beneil Dariush','Mateusz Gamrot',
+  // Super-Leves
+  'Islam Makhachev','Renato Moicano','Rafael Fiziev','Michael Chandler',
+  // Penas
+  'Ilia Topuria','Max Holloway','Brian Ortega','Yair Rodriguez','Josh Emmett',
+  // Galos
+  'Sean O\'Malley','Merab Dvalishvili','Marlon Vera','Cory Sandhagen','Petr Yan',
+  // Moscas
+  'Alexandre Pantoja','Brandon Moreno','Brandon Royval','Amir Albazi',
+  // Palhas (Feminino)
+  'Zhang Weili','Yan Xiaonan','Carla Esparza','Rose Namajunas','Tatiana Suarez',
+  // Atomweight Feminino
+  'Valentina Shevchenko','Alexa Grasso','Taila Santos','Erin Blanchfield',
+  // Penas Feminino
+  'Amanda Nunes','Megan Anderson','Felicia Spencer',
+  // Galos Feminino
+  'Raquel Pennington','Julianna Pena','Holly Holm','Irene Aldana',
+  // Brasileiros destaque
+  'Alex Poatan Pereira','Charles do Bronx Oliveira','Alexandre Pantoja',
+  'Gilbert Durinho Burns','Paulo Borrachinha Costa','Renato Moicano',
+  'Jailton Almeida','Rodrigo Nachmann','Mauricio Shogun Rua',
+];
+
+const TIMES_NBA = [
+  // Leste — Atlântico
+  'Boston Celtics','Brooklyn Nets','New York Knicks','Philadelphia 76ers','Toronto Raptors',
+  // Leste — Central
+  'Chicago Bulls','Cleveland Cavaliers','Detroit Pistons','Indiana Pacers','Milwaukee Bucks',
+  // Leste — Sudeste
+  'Atlanta Hawks','Charlotte Hornets','Miami Heat','Orlando Magic','Washington Wizards',
+  // Oeste — Noroeste
+  'Denver Nuggets','Minnesota Timberwolves','Oklahoma City Thunder','Portland Trail Blazers','Utah Jazz',
+  // Oeste — Pacífico
+  'Golden State Warriors','LA Clippers','Los Angeles Lakers','Phoenix Suns','Sacramento Kings',
+  // Oeste — Sudoeste
+  'Dallas Mavericks','Houston Rockets','Memphis Grizzlies','New Orleans Pelicans','San Antonio Spurs',
+];
+
+function updateCompList(){
+  const sport=document.getElementById('f-sport')?.value||'Futebol';
+  const dl=document.getElementById('dl-comp');
+  if(!dl) return;
+  const list=COMPS[sport]||[];
+  dl.innerHTML=list.map(c=>`<option value="${c}">`).join('');
+}
+
+function updateMktList(){
+  const sport=document.getElementById('f-sport')?.value||'Futebol';
+  const dl=document.getElementById('dl-mkt');
+  if(!dl) return;
+  const list=MERCADOS[sport]||[];
+  dl.innerHTML=list.map(m=>`<option value="${m}">`).join('');
+}
+
+function updateAtletaList(){
+  const sport=document.getElementById('f-sport')?.value||'Futebol';
+  const dlA=document.getElementById('dl-ta');
+  const dlB=document.getElementById('dl-tb');
+  if(!dlA||!dlB) return;
+  let list=[];
+  if(sport==='MMA/UFC') list=ATLETAS_MMA;
+  else if(sport==='Basquete (NBA)') list=TIMES_NBA;
+  dlA.innerHTML=list.map(a=>`<option value="${a}">`).join('');
+  dlB.innerHTML=list.map(a=>`<option value="${a}">`).join('');
+}
+
 let selectedRes=null, selectedLabels=[];
 function openEntradaModal(idx=null){
   editIdx=idx;
@@ -1853,20 +2058,28 @@ function openEntradaModal(idx=null){
     </div>
     <div class="form-row fr3">
       <div><label>Esporte</label>
-        <select id="f-sport">
-          ${['Futebol','Basquete','Tênis','Vôlei','MMA/UFC','E-sports','Outros'].map(s=>`<option ${e.esporte===s?'selected':''}>${s}</option>`).join('')}
+        <select id="f-sport" onchange="updateCompList();updateMktList();updateAtletaList()">
+          ${['Futebol','Basquete (NBA)','MMA/UFC','Tênis','Vôlei','E-sports','Outros'].map(s=>`<option ${e.esporte===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </div>
-      <div><label>Competição</label><input type="text" id="f-comp" value="${e.competicao||''}" placeholder="Brasileirão, NBA…"></div>
+      <div><label>Competição</label>
+        <input type="text" id="f-comp" value="${e.competicao||''}" placeholder="Digite ou selecione…" list="dl-comp" autocomplete="off">
+        <datalist id="dl-comp"></datalist>
+      </div>
       <div><label>Mercado</label>
-        <select id="f-mkt">
-          ${['Resultado','Over/Under','Handicap','Ambos marcam','1x2','Dupla chance','Gols','Cantos','Cartões','Outros'].map(m=>`<option ${e.mercado===m?'selected':''}>${m}</option>`).join('')}
-        </select>
+        <input type="text" id="f-mkt" value="${e.mercado||''}" placeholder="Digite ou selecione…" list="dl-mkt" autocomplete="off">
+        <datalist id="dl-mkt"></datalist>
       </div>
     </div>
     <div class="form-row fr2">
-      <div><label>Time / Atleta A</label><input type="text" id="f-ta" value="${e.timeA||''}"></div>
-      <div><label>Time / Atleta B (opcional)</label><input type="text" id="f-tb" value="${e.timeB||''}"></div>
+      <div><label>Time / Atleta A</label>
+        <input type="text" id="f-ta" value="${e.timeA||''}" list="dl-ta" autocomplete="off">
+        <datalist id="dl-ta"></datalist>
+      </div>
+      <div><label>Time / Atleta B (opcional)</label>
+        <input type="text" id="f-tb" value="${e.timeB||''}" list="dl-tb" autocomplete="off">
+        <datalist id="dl-tb"></datalist>
+      </div>
     </div>
     <div class="form-row fr2">
       <div><label>Odd</label><input type="number" id="f-odd" step="0.01" min="1.01" value="${e.odd||''}" placeholder="2.10"></div>
@@ -1894,6 +2107,10 @@ function openEntradaModal(idx=null){
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
     </div>`;
   document.getElementById('modal').classList.add('open');
+  // Popula datalists com base no esporte selecionado
+  updateCompList();
+  updateMktList();
+  updateAtletaList();
 }
 function pickRes(r, btn){
   selectedRes=selectedRes===r?null:r;
