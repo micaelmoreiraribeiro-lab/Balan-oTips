@@ -2,6 +2,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.3/dist/umd/supabase.min.js"></script>
 
 <style>
 /* ── TOKENS ─────────────────────────────────────────────────────── */
@@ -379,6 +380,7 @@ tr:hover td{background:var(--surface2)}
     <div class="topbar">
       <span class="topbar-title" id="page-title">Dashboard</span>
       <div style="display:flex;gap:8px;margin-left:auto;align-items:center">
+        <span id="sync-badge" style="font-size:11px;color:var(--muted)">☁️ ...</span>
         <button class="btn btn-ghost btn-sm" id="theme-btn" onclick="toggleTheme()" title="Alternar tema" style="font-size:16px;padding:4px 8px">🌙</button>
         <div class="topbar-actions" style="display:flex;gap:8px">
           <button class="btn btn-ghost btn-sm" onclick="openEntradaModal()">+ Nova entrada</button>
@@ -1067,6 +1069,30 @@ tr:hover td{background:var(--surface2)}
 
 <script>
 // ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════════════════════════════════════
+const SB_URL = 'https://vnkynhbwoyvdjjyomcs.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZua3luaGJ3b3l2ZGppanlvbWNzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM5ODEzNTcsImV4cCI6MjEwOTU1NzM1N30.zqJ4ddFtk94SWfPqOQDzCAhzAo5MQyt3G-ZBQKE5Yeo';
+const sb = supabase.createClient(SB_URL, SB_KEY);
+let sbOnline = false;
+
+async function sbCheck(){
+  try{
+    const {error}=await sb.from('entradas').select('id').limit(1);
+    sbOnline=!error;
+  }catch(e){sbOnline=false;}
+  updateSyncBadge();
+}
+
+function updateSyncBadge(){
+  const el=document.getElementById('sync-badge');
+  if(!el) return;
+  el.textContent=sbOnline?'☁️ Sincronizado':'📴 Offline';
+  el.style.color=sbOnline?'var(--green)':'var(--muted)';
+}
+
+// ═══════════════════════════════════════════════════════════════════════
 // DATA
 // ═══════════════════════════════════════════════════════════════════════
 let entries = [], cfg = {bancaInicial:1600,stopLoss:200,metaDiaria:200,metaMensal:0};
@@ -1075,14 +1101,78 @@ let resFilter='all', diarioFilter='all', editIdx=null;
 
 const COLORS=['#3ddc84','#60a5fa','#a78bfa','#f97316','#f43f5e','#facc15'];
 
-function save(){try{localStorage.setItem('bt_e',JSON.stringify(entries))}catch(e){}}
-function saveCfg(){try{localStorage.setItem('bt_cfg',JSON.stringify(cfg))}catch(e){}}
-function saveWl(){try{localStorage.setItem('bt_wl',JSON.stringify(wl))}catch(e){}}
-function load(){
+// Salva no localStorage E no Supabase
+async function save(){
+  try{localStorage.setItem('bt_e',JSON.stringify(entries))}catch(e){}
+  if(!sbOnline) return;
+  // Supabase: upsert todas as entradas (por id)
+  if(entries.length===0) return;
+  try{
+    await sb.from('entradas').upsert(
+      entries.map(e=>({...e, user_id:'micael'})),
+      {onConflict:'id'}
+    );
+  }catch(e){}
+}
+
+async function saveOne(entry){
+  // Salva uma entrada específica (após adicionar/editar)
+  try{localStorage.setItem('bt_e',JSON.stringify(entries))}catch(e){}
+  if(!sbOnline) return;
+  try{
+    await sb.from('entradas').upsert({...entry, user_id:'micael'},{onConflict:'id'});
+  }catch(e){}
+}
+
+async function deleteOne(id){
+  try{localStorage.setItem('bt_e',JSON.stringify(entries))}catch(e){}
+  if(!sbOnline) return;
+  try{ await sb.from('entradas').delete().eq('id',id); }catch(e){}
+}
+
+function saveCfg(){
+  try{localStorage.setItem('bt_cfg',JSON.stringify(cfg))}catch(e){}
+  if(!sbOnline) return;
+  sb.from('config').upsert([
+    {chave:'cfg',valor:JSON.stringify(cfg),user_id:'micael'}
+  ],{onConflict:'chave'}).catch(()=>{});
+}
+
+function saveWl(){
+  try{localStorage.setItem('bt_wl',JSON.stringify(wl))}catch(e){}
+  if(!sbOnline) return;
+  sb.from('config').upsert([
+    {chave:'wl',valor:JSON.stringify(wl),user_id:'micael'}
+  ],{onConflict:'chave'}).catch(()=>{});
+}
+
+async function load(){
+  // 1. Carrega do localStorage (imediato)
   try{
     const e=localStorage.getItem('bt_e'); if(e) entries=JSON.parse(e);
     const c=localStorage.getItem('bt_cfg'); if(c) cfg=Object.assign(cfg,JSON.parse(c));
     const w=localStorage.getItem('bt_wl'); if(w) wl=Object.assign(wl,JSON.parse(w));
+  }catch(e){}
+
+  // 2. Tenta Supabase (fonte de verdade)
+  await sbCheck();
+  if(!sbOnline) return;
+
+  try{
+    const {data:eData}=await sb.from('entradas').select('*').eq('user_id','micael').order('created_at',{ascending:false});
+    if(eData&&eData.length>0){
+      entries=eData;
+      try{localStorage.setItem('bt_e',JSON.stringify(entries))}catch(e){}
+    }
+    const {data:cfgData}=await sb.from('config').select('*').eq('user_id','micael');
+    if(cfgData){
+      cfgData.forEach(row=>{
+        if(row.chave==='cfg') try{cfg=Object.assign(cfg,JSON.parse(row.valor))}catch(e){}
+        if(row.chave==='wl') try{wl=Object.assign(wl,JSON.parse(row.valor))}catch(e){}
+      });
+    }
+    // Re-renderiza com dados do servidor
+    renderAll();
   }catch(e){}
 }
 function toggleTheme(){
