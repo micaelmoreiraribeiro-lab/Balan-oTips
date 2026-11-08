@@ -451,9 +451,9 @@ tr:hover td{background:var(--surface2)}
           <button class="filter-chip" data-res="Green" onclick="setResFilter(this)">✅ Green</button>
           <button class="filter-chip" data-res="Red" onclick="setResFilter(this)">❌ Red</button>
           <button class="filter-chip" data-res="wait" onclick="setResFilter(this)">⏳ Aguardando</button>
-          <select id="f-sport" onchange="renderTable()" style="flex-shrink:0">
+          <select id="tbl-sport" onchange="renderTable()" style="flex-shrink:0">
             <option value="">Todos esportes</option>
-            <option>Futebol</option><option>Basquete</option><option>Tênis</option>
+            <option>Futebol</option><option>Basquete (NBA)</option><option>Tênis</option>
             <option>Vôlei</option><option>MMA/UFC</option><option>E-sports</option><option>Outros</option>
           </select>
           <input type="date" id="f-from" onchange="renderTable()" placeholder="De">
@@ -1318,7 +1318,7 @@ function setResFilter(btn){
   renderTable();
 }
 function renderTable(){
-  const sport=document.getElementById('f-sport').value;
+  const sport=document.getElementById('tbl-sport').value;
   const from=document.getElementById('f-from').value;
   const to=document.getElementById('f-to').value;
   let list=[...entries].reverse().filter(e=>{
@@ -2011,8 +2011,86 @@ const TIMES_NBA = [
   'Dallas Mavericks','Houston Rockets','Memphis Grizzlies','New Orleans Pelicans','San Antonio Spurs',
 ];
 
+const ATLETAS_NBA = [
+  // Atlanta Hawks
+  'CJ McCollum','Nickeil Alexander-Walker','Dyson Daniels','Jalen Johnson','Onyeka Okongwu',
+  'Lu Dort','Aaron Wiggins','Devin Carter',
+  // Boston Celtics
+  'Jayson Tatum','Jaylen Brown','Payton Pritchard','Derrick White','Paul George','Mitchell Robinson',
+  'Mike Conley',
+  // Brooklyn Nets
+  'Mikel Brown Jr.','Egor Demin','Michael Porter Jr.','Julius Randle','Day\'Ron Sharpe',
+  'Keon Ellis','Moritz Wagner',
+  // Charlotte Hornets
+  'Coby White','Kon Knueppel','Brandon Miller','Naz Reid','Moussa Diabaté','Grayson Allen',
+  // Chicago Bulls
+  'Josh Giddey','Norman Powell','Matas Buzelis','Caleb Wilson','Nic Claxton',
+  // Cleveland Cavaliers
+  'James Harden','Donovan Mitchell','Peyton Watson','Evan Mobley','Jarrett Allen','Cam Whitmore',
+  // Detroit Pistons
+  'Cade Cunningham','Ausar Thompson','Duncan Robinson','John Collins','Jalen Duren',
+  'Isaiah Joe','Taurean Prince',
+  // Indiana Pacers
+  'Tyrese Haliburton','Andrew Nembhard','Aaron Nesmith','Pascal Siakam','Ivica Zubac',
+  'Kelly Oubre Jr.','Larry Nance Jr.',
+  // Miami Heat
+  'Giannis Antetokounmpo','Bam Adebayo','Davion Mitchell','Tim Hardaway Jr.','Andrew Wiggins',
+  'Klay Thompson',
+  // Milwaukee Bucks
+  'Tyler Herro','Jaime Jaquez Jr.','Kyle Kuzma','Myles Turner','Ryan Rollins','Kel\'el Ware',
+  // New York Knicks
+  'Jalen Brunson','Josh Hart','Mikal Bridges','OG Anunoby','Karl-Anthony Towns','Andre Drummond',
+  // Orlando Magic
+  'Jalen Suggs','Desmond Bane','Franz Wagner','Paolo Banchero','Wendell Carter Jr.','Nikola Vucevic',
+  // Philadelphia 76ers
+  'Tyrese Maxey','VJ Edgecombe','Jaylen Brown','LeBron James','Joel Embiid',
+  'Kentavious Caldwell-Pope',
+  // Toronto Raptors
+  'Immanuel Quickley','RJ Barrett','Brandon Ingram','Scottie Barnes','Jakob Poeltl',
+  // Washington Wizards
+  'Trae Young','Kyshawn George','AJ Dybantsa','Anthony Davis','Alex Sarr',
+  'Deandre Ayton','Khris Middleton','Tre Mann',
+  // Dallas Mavericks
+  'Kyrie Irving','Max Christie','Cooper Flagg','PJ Washington','Dereck Lively II',
+  'Zaccharie Risacher','Santi Aldama',
+  // Denver Nuggets
+  'Jamal Murray','Nikola Jokic','Christian Braun','Cameron Johnson','Aaron Gordon','DeMar DeRozan',
+  // Golden State Warriors
+  'Stephen Curry','Brandin Podziemski','Draymond Green','Kristaps Porzingis','Yaxel Lendeborg',
+  // Houston Rockets
+  'Fred VanVleet','Amen Thompson','Kevin Durant','Jabari Smith Jr.','Alperen Sengun',
+  'Bogdan Bogdanovic','Marcus Smart',
+  // LA Clippers
+  'Darius Garland','Bradley Beal','Kawhi Leonard','Rui Hachimura','Brook Lopez',
+  'Max Strus','Johni Broome',
+  // Los Angeles Lakers
+  'Luka Doncic','Austin Reaves','Quentin Grimes','Walker Kessler','Collin Sexton',
+  'Sandro Mamukelashvili',
+  // Memphis Grizzlies
+  'Ty Jerome','Jaylen Wells','Cedric Coward','Cameron Boozer','Zach Edey',
+  'Jerami Grant','Isaiah Stewart','D\'Angelo Russell',
+  // Minnesota Timberwolves
+  'LaMelo Ball','Anthony Edwards','Ayo Dosunmu','Jaden McDaniels','Rudy Gobert','Josh Green',
+  // New Orleans Pelicans
+  'Dejounte Murray','Trey Murphy III','Herb Jones','Zion Williamson','Derik Queen',
+  // Oklahoma City Thunder
+  'Shai Gilgeous-Alexander','Cason Wallace','Jalen Williams','Chet Holmgren','Isaiah Hartenstein',
+  // Phoenix Suns
+  'Devin Booker','Jalen Green','Dillon Brooks','Miles Bridges','Mark Williams','Luke Kennard',
+  // Portland Trail Blazers
+  'Ja Morant','Damian Lillard','Toumani Camara','Deni Avdija','Donovan Clingan','Jeremy Sochan',
+  // Sacramento Kings
+  'Darius Acuff Jr.','Zach LaVine','De\'Andre Hunter','Keegan Murray','Domantas Sabonis',
+  // San Antonio Spurs
+  'De\'Aaron Fox','Stephon Castle','Devin Vassell','Julian Champagnie','Victor Wembanyama',
+  'Tobias Harris',
+  // Utah Jazz
+  'Keyonte George','Darryn Peterson','Lauri Markkanen','Jaren Jackson Jr.','Jusuf Nurkic',
+  'Jaxson Hayes',
+];
+
 function updateCompList(){
-  const sport=document.getElementById('f-sport')?.value||'Futebol';
+  const sport=document.getElementById('f-sport-modal')?.value||'Futebol';
   const dl=document.getElementById('dl-comp');
   if(!dl) return;
   const list=COMPS[sport]||[];
@@ -2020,21 +2098,68 @@ function updateCompList(){
 }
 
 function updateMktList(){
-  const sport=document.getElementById('f-sport')?.value||'Futebol';
+  const sport=document.getElementById('f-sport-modal')?.value||'Futebol';
   const dl=document.getElementById('dl-mkt');
   if(!dl) return;
   const list=MERCADOS[sport]||[];
   dl.innerHTML=list.map(m=>`<option value="${m}">`).join('');
 }
 
+const TIMES_FUTEBOL = [
+  // Brasileirão Série A 2024
+  'Flamengo','Palmeiras','Atlético-MG','Fluminense','Botafogo',
+  'São Paulo','Grêmio','Internacional','Athletico-PR','Vasco',
+  'Cruzeiro','Bragantino','Fortaleza','Bahia','Corinthians',
+  'Vitória','Criciúma','Cuiabá','Atlético-GO','Juventude',
+  // Brasileirão Série B
+  'Sport','Mirassol','Novorizontino','Santos','América-MG',
+  'Ceará','Avaí','Chapecoense','CRB','Vila Nova',
+  'Goiás','Paysandu','Operário-PR','Amazonas','Guarani',
+  'ABC','Ponte Preta','Coritiba','Ituano','Botafogo-SP',
+  // Premier League
+  'Arsenal','Aston Villa','Bournemouth','Brentford','Brighton',
+  'Burnley','Chelsea','Crystal Palace','Everton','Fulham',
+  'Ipswich Town','Leicester City','Liverpool','Manchester City',
+  'Manchester United','Newcastle United','Nottingham Forest',
+  'Southampton','Tottenham Hotspur','West Ham United','Wolverhampton',
+  // La Liga
+  'Atlético de Madrid','Barcelona','Real Madrid','Sevilla','Valencia',
+  'Villarreal','Athletic Bilbao','Real Sociedad','Betis','Celta de Vigo',
+  'Getafe','Rayo Vallecano','Osasuna','Girona','Mallorca',
+  'Deportivo Alavés','Leganés','Valladolid','Espanyol','Las Palmas',
+  // Bundesliga
+  'Bayern München','Borussia Dortmund','RB Leipzig','Bayer Leverkusen',
+  'Union Berlin','Eintracht Frankfurt','Wolfsburg','Freiburg',
+  'Borussia Mönchengladbach','Augsburg','Hoffenheim','Werder Bremen',
+  'Stuttgart','Mainz','Heidenheim','Bochum','Holstein Kiel','St. Pauli',
+  // Serie A (Itália)
+  'AC Milan','Inter de Milão','Juventus','Napoli','Lazio','Roma','Fiorentina',
+  'Atalanta','Torino','Bologna','Monza','Sassuolo','Lecce','Genoa',
+  'Cagliari','Empoli','Frosinone','Verona','Udinese','Salernitana',
+  // Ligue 1
+  'Paris Saint-Germain','Marseille','Lyon','Monaco','Lille','Lens',
+  'Nice','Rennes','Strasbourg','Nantes','Montpellier','Reims',
+  'Lorient','Toulouse','Brest','Metz','Clermont','Le Havre',
+  // Champions League — outros times frequentes
+  'Porto','Benfica','Sporting CP','Ajax','PSV Eindhoven','Feyenoord',
+  'Celtic','Rangers','Brugge','Anderlecht','Galatasaray','Fenerbahçe',
+  'Besiktas','Red Bull Salzburg','Shakhtar Donetsk','Dinamo Zagreb',
+  // Copa do Mundo / Seleções
+  'Brasil','Argentina','França','Alemanha','Espanha','Portugal',
+  'Inglaterra','Itália','Holanda','Bélgica','Croácia','Uruguai',
+  'Colômbia','México','EUA','Japão','Coreia do Sul','Marrocos',
+  'Senegal','Egito','Austrália','Polônia','Suíça','Dinamarca',
+];
+
 function updateAtletaList(){
-  const sport=document.getElementById('f-sport')?.value||'Futebol';
+  const sport=document.getElementById('f-sport-modal')?.value||'Futebol';
   const dlA=document.getElementById('dl-ta');
   const dlB=document.getElementById('dl-tb');
   if(!dlA||!dlB) return;
   let list=[];
   if(sport==='MMA/UFC') list=ATLETAS_MMA;
-  else if(sport==='Basquete (NBA)') list=TIMES_NBA;
+  else if(sport==='Basquete (NBA)') list=[...TIMES_NBA,...ATLETAS_NBA];
+  else if(sport==='Futebol') list=TIMES_FUTEBOL;
   dlA.innerHTML=list.map(a=>`<option value="${a}">`).join('');
   dlB.innerHTML=list.map(a=>`<option value="${a}">`).join('');
 }
@@ -2058,7 +2183,7 @@ function openEntradaModal(idx=null){
     </div>
     <div class="form-row fr3">
       <div><label>Esporte</label>
-        <select id="f-sport" onchange="updateCompList();updateMktList();updateAtletaList()">
+        <select id="f-sport-modal" onchange="updateCompList();updateMktList();updateAtletaList()">
           ${['Futebol','Basquete (NBA)','MMA/UFC','Tênis','Vôlei','E-sports','Outros'].map(s=>`<option ${e.esporte===s?'selected':''}>${s}</option>`).join('')}
         </select>
       </div>
@@ -2151,7 +2276,7 @@ function saveEntry(){
   const entry={
     data,
     modalidade:document.getElementById('f-mod').value,
-    esporte:document.getElementById('f-sport').value,
+    esporte:document.getElementById('f-sport-modal').value,
     competicao:document.getElementById('f-comp').value,
     mercado:document.getElementById('f-mkt').value,
     timeA:document.getElementById('f-ta').value,
